@@ -191,7 +191,12 @@ def test_comparison_brief_has_substance():
     brief_path = os.path.join(os.path.dirname(__file__), "..", "comparison_brief.md")
     assert os.path.exists(brief_path), "comparison_brief.md missing"
     body = open(brief_path).read()
-    assert len(body) >= 250, f"comparison_brief.md too short ({len(body)} chars; need >= 250)"
+    word_count = len(body.split())
+    assert word_count >= 250, (
+        f"comparison_brief.md too short ({word_count} words; need >= 250). "
+        "The spec asks for ~300–500 words covering the metrics table, BM25-wins / dense-wins examples, "
+        "and an alpha recommendation with justification."
+    )
     lower = body.lower()
     for needle in ("bm25", "dense", "hybrid"):
         assert needle in lower, f"comparison_brief.md must mention {needle!r}"
