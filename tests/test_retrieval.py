@@ -184,6 +184,23 @@ def test_evaluate_retriever_returns_expected_keys(client, ingested):
         v = out[key]
         assert isinstance(v, (int, float)), f"{key} must be numeric, got {type(v).__name__}"
         assert 0.0 <= float(v) <= 1.0, f"{key}={v} out of [0, 1]"
+    assert "by_type" in out, (
+        "missing key 'by_type' — evaluate_retriever must split metrics by query_type "
+        "(factoid / paraphrastic) for the comparison brief"
+    )
+    by_type = out["by_type"]
+    assert isinstance(by_type, dict), f"by_type must be a dict, got {type(by_type).__name__}"
+    for qtype in ("factoid", "paraphrastic"):
+        assert qtype in by_type, f"by_type missing {qtype!r} sub-dict"
+        sub = by_type[qtype]
+        assert isinstance(sub, dict), f"by_type[{qtype!r}] must be a dict, got {type(sub).__name__}"
+        for key in ("recall@5", "recall@10", "mrr"):
+            assert key in sub, f"by_type[{qtype!r}] missing key {key!r}"
+            v = sub[key]
+            assert isinstance(v, (int, float)), (
+                f"by_type[{qtype!r}][{key!r}] must be numeric, got {type(v).__name__}"
+            )
+            assert 0.0 <= float(v) <= 1.0, f"by_type[{qtype!r}][{key!r}]={v} out of [0, 1]"
 
 
 def test_comparison_brief_has_substance():
